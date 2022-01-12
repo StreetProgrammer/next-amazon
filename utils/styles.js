@@ -2,15 +2,16 @@ import { makeStyles } from '@mui/styles';
 
 const useStyles = makeStyles({
   navbar: {
-    backgroundColor: '#203040',
+    backgroundColor: '#203040 !important',
     '& a': {
       color: '#FFF',
       marginLeft: 10,
+      textDecoration: 'none',
     },
   },
   brand: {
-    fontWeight: 'bold',
-    fontSize: '1.5rem',
+    // fontWeight: '500 !important',
+    fontSize: '1.5rem !important',
   },
   grow: {
     flexGrow: 1,
