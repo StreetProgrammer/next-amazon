@@ -8,6 +8,7 @@ import {
   Link as MuiLink,
   CssBaseline,
   Switch,
+  Badge,
 } from '@mui/material';
 
 import useStyles from '../utils/styles';
@@ -18,7 +19,7 @@ import Cookies from 'js-cookie';
 
 export default function Layout({ title, description, children }) {
   const { state, dispatch } = useContext(Store);
-  const { darkMode } = state;
+  const { darkMode, cart } = state;
 
   useEffect(() => {
     var isDark = Cookies.get('darkMode') || 'OFF';
@@ -80,7 +81,15 @@ export default function Layout({ title, description, children }) {
                 onChange={darkModeChangeHandler}
               ></Switch>
               <Link href="/cart" passHref>
-                <MuiLink>Cart</MuiLink>
+                <MuiLink>
+                  {cart.cartItems.length > 0 ? (
+                    <Badge color="primary" badgeContent={cart.cartItems.length}>
+                      Cart
+                    </Badge>
+                  ) : (
+                    'Cart'
+                  )}
+                </MuiLink>
               </Link>
               <Link href="/login" passHref>
                 <MuiLink>Login</MuiLink>

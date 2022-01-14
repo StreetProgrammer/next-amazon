@@ -1,5 +1,4 @@
-import { useRouter } from 'next/router';
-import React from 'react';
+import React, { useContext } from 'react';
 import Layout from '../../components/Layout';
 import {
   Button,
@@ -11,18 +10,34 @@ import {
   Typography,
 } from '@mui/material';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 import db from '../../utils/db';
 import Product from '../../models/Product';
 import useStyles from '../../utils/styles';
 import Image from 'next/image';
+import { Store } from '../../utils/Store';
+import axios from 'axios';
 
 export default function ProductScreen(props) {
+  const { state, dispatch } = useContext(Store);
+  const router = useRouter();
   const classes = useStyles();
   const { product } = props;
   if (!product) {
     return <div>Not Found</div>;
   }
+
+  const addToCartHandler = async () => {
+    const data = await axios.get(`/api/products/${product._id}`);
+    if (data.countInStock <= 0) {
+      window.alert('Sorry. Product is out of Stock');
+      return;
+    }
+    dispatch({ type: 'CART_ADD_ITEM', payload: { ...product, quantity: 1 } });
+    router.push('/cart');
+  };
+
   return (
     <Layout title={product.name} description={product.description}>
       <div className={classes.section}>
@@ -91,7 +106,12 @@ export default function ProductScreen(props) {
                 </Grid>
               </ListItem>
               <ListItem>
-                <Button fullWidth variant="contained" color="primary">
+                <Button
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  onClick={addToCartHandler}
+                >
                   Add To Cart
                 </Button>
               </ListItem>
