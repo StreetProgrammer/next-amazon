@@ -1,3 +1,4 @@
+import React, { useContext } from 'react';
 import {
   Grid,
   Typography,
@@ -15,19 +16,32 @@ import {
   List,
   ListItem,
 } from '@mui/material';
-import React, { useContext } from 'react';
 import Link from 'next/link';
 import Layout from '../components/Layout';
 import { Store } from '../utils/Store';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
+import axios from 'axios';
 
-export default function CartScreen() {
-  const { state } = useContext(Store);
+function CartScreen() {
+  const { state, dispatch } = useContext(Store);
   const {
     cart: { cartItems },
   } = state;
 
-  const addToCartHandler = () => {};
+  const updateCartHandler = async (item, quantity) => {
+    const { data } = await axios.get(`/api/products/${item._id}`);
+    if (data.countInStock <= 0) {
+      window.alert('Sorry. product is out of Stock');
+      return;
+    }
+    dispatch({ type: 'CART_ADD_ITEM', payload: { ...item, quantity } });
+  };
+
+  const removeItemHandler = (item) => {
+    dispatch({ type: 'CART_REMOVE_ITEM', payload: item });
+  };
+
   return (
     <Layout title="Shopping Cart">
       <Typography component="h1" variant="h1">
@@ -79,7 +93,12 @@ export default function CartScreen() {
                         </Link>
                       </TableCell>
                       <TableCell align="right">
-                        <Select value={item.quantity}>
+                        <Select
+                          value={item.quantity}
+                          onChange={(e) => {
+                            updateCartHandler(item, e.target.value);
+                          }}
+                        >
                           {[...Array(item.countInStock).keys()].map((x) => (
                             <MenuItem key={x + 1} value={x + 1}>
                               {x + 1}
@@ -89,7 +108,11 @@ export default function CartScreen() {
                       </TableCell>
                       <TableCell align="right">${item.price}</TableCell>
                       <TableCell align="right">
-                        <Button variant="contained" color="primary">
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={removeItemHandler(item)}
+                        >
                           x
                         </Button>
                       </TableCell>
@@ -114,7 +137,7 @@ export default function CartScreen() {
                     fullWidth
                     variant="contained"
                     color="primary"
-                    onClick={addToCartHandler}
+                    onClick={() => {}}
                   >
                     Checkout
                   </Button>
@@ -127,3 +150,6 @@ export default function CartScreen() {
     </Layout>
   );
 }
+// export default dynamic(() => Promise.resolve(CartScreen), { ssr: false });
+
+export default CartScreen;
