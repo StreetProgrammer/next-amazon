@@ -22,8 +22,10 @@ import { Store } from '../utils/Store';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import axios from 'axios';
+import { useRouter } from 'next/router';
 
 function CartScreen() {
+  const router = useRouter();
   const { state, dispatch } = useContext(Store);
   const {
     cart: { cartItems },
@@ -31,7 +33,7 @@ function CartScreen() {
 
   const updateCartHandler = async (item, quantity) => {
     const { data } = await axios.get(`/api/products/${item._id}`);
-    if (data.countInStock <= 0) {
+    if (data.countInStock < quantity) {
       window.alert('Sorry. product is out of Stock');
       return;
     }
@@ -42,6 +44,10 @@ function CartScreen() {
     dispatch({ type: 'CART_REMOVE_ITEM', payload: item });
   };
 
+  const checkoutHandler = () => {
+    router.push('/shipping');
+  };
+
   return (
     <Layout title="Shopping Cart">
       <Typography component="h1" variant="h1">
@@ -49,7 +55,7 @@ function CartScreen() {
       </Typography>
       {cartItems.length === 0 ? (
         <div>
-          Cart Is Empty{' '}
+          Cart Is Empty.
           <Link href="/" passHref>
             <MuiLink>
               <Typography>Go Shopping</Typography>
@@ -111,7 +117,7 @@ function CartScreen() {
                         <Button
                           variant="contained"
                           color="primary"
-                          onClick={removeItemHandler(item)}
+                          onClick={() => removeItemHandler(item)}
                         >
                           x
                         </Button>
@@ -137,7 +143,7 @@ function CartScreen() {
                     fullWidth
                     variant="contained"
                     color="primary"
-                    onClick={() => {}}
+                    onClick={checkoutHandler}
                   >
                     Checkout
                   </Button>
@@ -150,6 +156,6 @@ function CartScreen() {
     </Layout>
   );
 }
-// export default dynamic(() => Promise.resolve(CartScreen), { ssr: false });
+export default dynamic(() => Promise.resolve(CartScreen), { ssr: false });
 
-export default CartScreen;
+// export default CartScreen;
